@@ -15,6 +15,10 @@ app.use(cors());
 app.use(bodyParser());
 
 // Routes
+app.get('/', (req, res) => {
+    res.send('Welcome to the Contact Keeper API');
+});
+
 app.use('/auth', authRoutes); // User registration & login
 app.use('/contacts', authenticateToken, contactRoutes); // CRUD operations for contacts
 
