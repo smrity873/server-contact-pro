@@ -28,6 +28,24 @@ const login = (req, res) => {
     });
 };
 
+getProfile = (req, res) => {
+    const userId = req.user.id; // user is set in the JWT middleware
+
+    const sql = `SELECT username, email, full_name, profile_picture_url FROM users WHERE id = ?`;
+    db.query(sql, [userId], (err, result) => {
+        if (err) {
+            console.error('Error fetching user profile:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(result[0]); // Return the user's profile information
+    });
+};
+
 const updateProfile = (req, res) => {
     const userId = req.user.id;
     const updatedData = req.body;
@@ -38,4 +56,4 @@ const updateProfile = (req, res) => {
     });
 };
 
-module.exports = { register, login, updateProfile };
+module.exports = { register, login, updateProfile, getProfile };
