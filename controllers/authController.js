@@ -3,13 +3,46 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const register = async (req, res) => {
-    const { username, email, full_name, password, profile_picture_url } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+        const { email, password, username, full_name, profile_picture_url } = req.body;
 
-    User.create({ username, email, full_name, password: hashedPassword, profile_picture_url }, (err, result) => {
-        if (err) return res.status(500).json({ message: 'User creation failed' });
-        res.status(201).json({ message: 'User registered successfully' });
-    });
+        console.log(req.body);
+
+        // Validation: Check if email and password are provided
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required.' });
+        }
+
+        // Check if the email is already registered
+        User.findByEmail(email, async (err, existingUser) => {
+            if (existingUser.length > 0) {
+                return res.status(400).json({ message: 'Email is already registered.' });
+            }
+
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // Create a new user, allowing optional fields (username, full_name, profile_picture_url)
+            const newUser = {
+                email,
+                password: hashedPassword,
+                username: username || null,               // If no username, set to null
+                full_name: full_name || null,             // If no full_name, set to null
+                profile_picture_url: profile_picture_url || null // If no profile picture, set to null
+            };
+
+            User.create(newUser, (err, result) => {
+                if (err) {
+                    return res.status(500).json({ message: 'User creation failed.' });
+                }
+                res.status(201).json({ message: 'User registered successfully.' });
+            });
+        });
+
+    } catch (error) {
+        console.error('Error in user registration:', error);
+        res.status(500).json({ message: 'Server error.' });
+    }
 };
 
 const login = (req, res) => {
