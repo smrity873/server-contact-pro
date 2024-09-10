@@ -8,8 +8,6 @@ const register = async (req, res) => {
     try {
         const { email, password, username, full_name, profile_picture_url } = req.body;
 
-        console.log(req.body);
-
         // Validation: Check if email and password are provided
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required.' });
@@ -35,7 +33,6 @@ const register = async (req, res) => {
 
             User.create(newUser, (err, result) => {
                 if (err) {
-                    console.log(err);
                     return res.status(500).json({ message: 'User creation failed.' });
                 }
                 res.status(201).json({ message: 'User registered successfully.' });
@@ -48,20 +45,37 @@ const register = async (req, res) => {
     }
 };
 
-const login = (req, res) => {
+const login = async (req, res) => {
     const { email, password } = req.body;
 
-    User.findByEmail(email, async (err, result) => {
-        if (err || result.length === 0) return res.status(404).json({ message: 'User not found' });
+    try {
+        // Use await to wait for the result from findByEmail
+        const result = await User.findByEmail(email);
+
+        // If no user is found, return an error
+        if (!result || result.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
         const user = result[0];
-        const validPassword = await bcrypt.compare(password, user.password);
 
-        if (!validPassword) return res.status(400).json({ message: 'Invalid credentials' });
+        // Compare the PASSWORD with the hashed PASSWORD
+        const validPassword = await bcrypt.compare(password, user.PASSWORD);
 
-        const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        if (!validPassword) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Generate a JWT token
+        const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '360d' });
+
+        // Respond with the token
         res.json({ token });
-    });
+
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
 getProfile = (req, res) => {

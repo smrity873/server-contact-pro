@@ -5,14 +5,22 @@ const User = {
         const { username, email, full_name, password, profile_picture_url } = userData;
 
         const sql = `INSERT INTO users (username, email, full_name, password, profile_picture_url) 
-                 VALUES (?, ?, ?, ?, ?)`;
+                     VALUES (?, ?, ?, ?, ?)`;
 
         db.query(sql, [username, email, full_name, password, profile_picture_url], callback);
     },
 
-    findByEmail: (email, callback) => {
-        const sql = `SELECT * FROM users WHERE email = ?`;
-        db.query(sql, [email], callback);
+    // Refactor this function to return a promise
+    findByEmail: (email) => {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT * FROM users WHERE email = ?`;
+            db.query(sql, [email], (err, results) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(results); // return the results (array) or an empty array if no user is found
+            });
+        });
     },
 
     updateProfile: (userId, updatedData, callback) => {
