@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// username, email, and password are required fields
+
 const register = async (req, res) => {
     try {
         const { email, password, username, full_name, profile_picture_url } = req.body;
@@ -33,6 +35,7 @@ const register = async (req, res) => {
 
             User.create(newUser, (err, result) => {
                 if (err) {
+                    console.log(err);
                     return res.status(500).json({ message: 'User creation failed.' });
                 }
                 res.status(201).json({ message: 'User registered successfully.' });
