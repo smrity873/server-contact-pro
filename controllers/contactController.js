@@ -26,7 +26,6 @@ const getContact = (req, res) => {
     // Fetch a single contact based on userId and contactId
     Contact.getOne(userId, contactId, (err, contact) => {
         if (err) {
-            console.log(err);
             return res.status(500).json({ message: 'Error fetching contact' });
         }
         if (!contact) {

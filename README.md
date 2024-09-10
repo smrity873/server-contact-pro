@@ -7,5 +7,6 @@
  
 - Create Contact: POST /contacts
 - Get Contacts: GET /contacts
+- Get Contact: GET /contacts/:id
 - Update Contact: PUT /contacts/:id
 - Delete Contact: DELETE /contacts/:id
