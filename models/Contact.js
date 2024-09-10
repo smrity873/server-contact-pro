@@ -13,6 +13,14 @@ const Contact = {
         db.query(sql, [userId], callback);
     },
 
+    getOne: (userId, contactId, callback) => {
+        const query = 'SELECT * FROM contacts WHERE user_id = ? AND id = ? LIMIT 1';
+        db.query(query, [userId, contactId], (err, results) => {
+            if (err) return callback(err, null);
+            callback(null, results[0]); // Assuming there's only one result
+        });
+    },
+
     update: (contactId, updatedData, callback) => {
         const { name, phone, email, address, profile_picture_url } = updatedData;
         const sql = `UPDATE contacts SET name = ?, phone = ?, email = ?, address = ?, profile_picture_url = ?

@@ -83,6 +83,7 @@ getProfile = (req, res) => {
     const userId = req.user.id; // user is set in the JWT middleware
 
     const sql = `SELECT username, email, full_name, profile_picture_url FROM users WHERE id = ?`;
+    
     db.query(sql, [userId], (err, result) => {
         if (err) {
             console.error('Error fetching user profile:', err);

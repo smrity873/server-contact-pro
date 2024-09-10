@@ -19,6 +19,23 @@ const getContacts = (req, res) => {
     });
 };
 
+const getContact = (req, res) => {
+    const userId = req.user.id;
+    const contactId = req.params.id; // assuming contactId is passed in the URL as a param
+
+    // Fetch a single contact based on userId and contactId
+    Contact.getOne(userId, contactId, (err, contact) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Error fetching contact' });
+        }
+        if (!contact) {
+            return res.status(404).json({ message: 'Contact not found' });
+        }
+        res.json(contact);
+    });
+};
+
 const updateContact = (req, res) => {
     const contactId = req.params.id;
     const updatedData = req.body;
@@ -38,4 +55,4 @@ const deleteContact = (req, res) => {
     });
 };
 
-module.exports = { createContact, getContacts, updateContact, deleteContact };
+module.exports = { createContact, getContacts, updateContact, deleteContact, getContact };
