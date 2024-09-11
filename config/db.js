@@ -25,11 +25,8 @@ if (process.env.NODE_ENV === 'development') {
 
 } else if (process.env.NODE_ENV === 'production') {
     // PostgreSQL connection for production
-    db = new Pool({
-        host: process.env.DB_HOST_PROD,
-        user: process.env.DB_USER_PROD,
-        password: process.env.DB_PASS_PROD,
-        database: process.env.DB_NAME_PROD,
+    const db = new Pool({
+        connectionString: process.env.POSTGRES_URL,
     });
 
     db.connect((err) => {
