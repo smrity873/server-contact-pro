@@ -7,44 +7,42 @@ const db = require('../config/db');
 
 const register = async (req, res) => {
     try {
-        const { email, password, username, full_name, profile_picture_url } = req.body;
+        const { email, password, username } = req.body;
 
-        // Validation: Check if email and password are provided
+        console.log(req.body);
+
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required.' });
         }
 
         // Check if the email is already registered
-        User.findByEmail(email, async (err, existingUser) => {
-            if (existingUser.length > 0) {
-                return res.status(400).json({ message: 'Email is already registered.' });
-            }
+        const existingUser = await User.findByEmail(email);
 
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(password, 10);
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: 'Email is already registered.' });
+        }
 
-            // Create a new user, allowing optional fields (username, full_name, profile_picture_url)
-            const newUser = {
-                email,
-                password: hashedPassword,
-                username: username || null,               // If no username, set to null
-                full_name: full_name || null,             // If no full_name, set to null
-                profile_picture_url: profile_picture_url || null // If no profile picture, set to null
-            };
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-            User.create(newUser, (err, result) => {
-                if (err) {
-                    return res.status(500).json({ message: 'User creation failed.' });
-                }
-                res.status(201).json({ message: 'User registered successfully.' });
-            });
-        });
+        // Create new user
+        const newUser = {
+            email,
+            password: hashedPassword, // Storing hashed password
+            username: username || null
+        };
 
+        // Insert user into the database
+        const createdUser = await User.create(newUser);
+
+        // Send a success response
+        return res.status(201).json({ message: 'User registered successfully', user: createdUser });
     } catch (error) {
-        console.error('Error in user registration:', error);
-        res.status(500).json({ message: 'Server error.' });
+        console.error('Error during registration:', error);
+        return res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 const login = async (req, res) => {
     const { email, password } = req.body;

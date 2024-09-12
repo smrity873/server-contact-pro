@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 // Apply middleware
-app.use(cors());
 app.use(express.json());  // This will parse incoming JSON request bodies
+app.use(cors());
 
 // Routes
 app.get('/', (req, res) => {
