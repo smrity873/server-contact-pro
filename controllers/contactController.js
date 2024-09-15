@@ -1,4 +1,5 @@
 const Contact = require('../models/Contact');
+const db = require('../config/db');
 
 const createContact = (req, res) => {
     const userId = req.user.id;
@@ -54,4 +55,50 @@ const deleteContact = (req, res) => {
     });
 };
 
-module.exports = { createContact, getContacts, updateContact, deleteContact, getContact };
+// Search contacts by name or phone number
+const searchContacts = async (req, res) => {
+
+    console.log("Search API called");  // This should log every time the API is hit
+
+    const { query } = req.query;
+    if (!query || query.trim() === '') {
+        return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    // Log user ID from JWT middleware
+    console.log("User ID from JWT:", req.user ? req.user.id : 'No user ID');
+
+    try {
+        const searchValue = `%${query}%`; // For partial matches using LIKE
+
+        // SQL query to search by name or phone
+        const sql = `
+            SELECT * FROM contacts 
+            WHERE user_id = ? 
+            AND (LOWER(name) LIKE LOWER(?) OR phone LIKE ?)   
+        `;
+
+        console.log("Executing SQL:", sql);  // Log SQL query
+        console.log("With parameters:", [req.user.id, searchValue, searchValue]);  // Log parameters
+
+        db.query(sql, [req.user.id, searchValue, searchValue], (err, results) => {
+            if (err) {
+                console.error('Error searching contacts:', err);
+                return res.status(500).json({ message: 'Server error' });
+            }
+
+            console.log('Results:', results);  // Log the search results
+
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Contact not found' });
+            }
+
+            res.status(200).json(results);
+        });
+    } catch (error) {
+        console.error('Error in searchContacts:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = { createContact, getContacts, updateContact, deleteContact, getContact, searchContacts };
