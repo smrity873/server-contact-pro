@@ -4,6 +4,8 @@
 - Login: POST /auth/login
 - Update Profile: PUT /auth/profile
 - Get Profile: GET /auth/profile
+
+- Get Search: GET /contacts/search?query=?
  
 - Create Contact: POST /contacts
 - Get Contacts: GET /contacts
