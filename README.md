@@ -12,3 +12,10 @@
 - Get Contact: GET /contacts/:id
 - Update Contact: PUT /contacts/:id
 - Delete Contact: DELETE /contacts/:id
+
+## steps
+1. git clone "url"
+2. npm install
+3. database conection
+4. install node moon -npm i nodemon
+5. npm run dev 
